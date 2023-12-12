@@ -25,7 +25,7 @@ V=flip(V,2);
 ub=zeros((Nx+1)*(Ny+1)*2,ndump);
 
 ub(:,1)=u0;
-ub(:,2:end)=us*V(:,1:ndump-1);
+ub(:,2:end)=us0*V(:,1:ndump-1);
 
 for i=2:ndump
     ub(:,i)=ub(:,i)./sqrt(dot(ub(:,i),Bb(ub(:,i))));
