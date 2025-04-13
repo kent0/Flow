@@ -13,17 +13,26 @@ ly=by-ay;
 Npx=Nx-k;
 Npy=Ny-k;
 
-Mx=Int(round((3*Nx+1)*.5+.1));
-My=Int(round((3*Ny+1)*.5+.1));
+Mx=Int(round((8*Nx+1)*.5+.1));
+My=Int(round((8*Ny+1)*.5+.1));
 
-Lx=Nx*4;
-Ly=Nx*4;
+Lx=(Nx+1)*4-1;
+Ly=(Nx+1)*4-1;
+
+Lx=256;
+Ly=256;
+
+Nxp1=Nx+1;
+Nyp1=Ny+1;
 
 zxn,wxn=zwgll(Nx);
 zyn,wyn=zwgll(Ny);
 
 wx=wxn;
 wy=wyn;
+
+zxnp1,wxnp1=zwgll(Nxp1);
+zynp1,wynp1=zwgll(Nyp1);
 
 zxn2,wxn2=zwgll(Nx*2);
 zyn2,wyn2=zwgll(Ny*2);
@@ -33,6 +42,9 @@ zym,wym=zwgll(My);
 
 zxl,wxl=zwgll(Lx);
 zyl,wyl=zwgll(Ly);
+
+zxl = (0:Lx) .* (2.0/Lx) .- 1;
+zyl = (0:Ly) .* (2.0/Ly) .- 1;
 
 zzx,_=zwgll(Nx-nf);
 zzy,_=zwgll(Ny-nf);
@@ -145,4 +157,3 @@ return Abx,Aby,Bbx,Bby,Bbxm,Bbym,Bbxn2,Bbyn2,Bbpx,Bbpy,
           Jxn2l,Jyn2l,Jxml,Jyml,Jxnl,Jynl,Jxpn,Jypn,Jxpl,Jypl,
           Rx,Ry,Xn,Yn,Xn2,Yn2,Xm,Ym,Xl,Yl,Xpn,Ypn
 end
-

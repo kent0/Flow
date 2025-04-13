@@ -1,11 +1,21 @@
-function post(uf,ue,ud,p,ubsf,t,dt,Xn,Yn,istep,iostep,nsteps,ifexact,ifplot,
-              Bb,p1,p2,pm,pv,psf,pp,pdiv);
+function post(uf,ue,ud,p,ubsf,t,dt,Xn,Yn,istep,iostep,nsteps,ifexact,ipstep,
+              Bb,p1,p2,pm,pv,psf,pp,pdiv,pfx="");
 
     diff=sqrt(dot(ud,Bb(ud))/dot(uf,Bb(uf)))/dt;
     err=0;
+
+    if mod(istep,ipstep)==0 || istep == nsteps
+        iplot=round(istep/ipstep);
+        dstr=@sprintf("%06d",iplot);
+        pm(uf,pfx*"o"*dstr); #title(['Velocity Magnitude  ' str],'FontName','Operator Mono');
+        pp(p,pfx*"p"*dstr); #title(['Velocity Magnitude  ' str],'FontName','Operator Mono');
+#           println("plot...")
+#           sleep(5)
+    end
+    
     if mod(istep,iostep)==0 || istep == nsteps
-#       idump=round(istep/iostep);
-#       cstr=sprintf('%06d',idump);
+        idump=round(istep/iostep);
+        cstr=@sprintf("%06d",idump);
         cfl=gcfl(uf,dt,Xn,Yn);
         str="TIME="*@sprintf("%8.3e",t)*"  DT="*@sprintf("%8.3e",dt)*"  CFL="*@sprintf("%8.3e",cfl)*"  DIFF="*@sprintf("%8.3e",diff);
 
@@ -15,23 +25,25 @@ function post(uf,ue,ud,p,ubsf,t,dt,Xn,Yn,istep,iostep,nsteps,ifexact,ifplot,
 #           str=str*"  ERR="*num2str(err,'%8.3e')];
 #       end
 
-        if ifplot || istep == nsteps
-            pm(uf); #title(['Velocity Magnitude  ' str],'FontName','Operator Mono');
-#           println("plot...")
-#           sleep(5)
-        end
 
-#       nx1,ny1=size(Xn);
+        nx1,ny1=size(Xn);
 #       ux=[uf;reshape(Xn,[],1);reshape(Yn,[],1)];
 #       ux=reshape(ux,nx1*ny1,4);
-#       fid=fopen([cstr,'.nx',num2str(nx1-1),'.ny',num2str(ny1-1),'.dat'],'w'); fprintf(fid,'%20.16e\n',uf); fclose(fid);
+        fname=pfx*cstr*".nx$(nx1).ny$(ny1).dat"
+        write(fname,uf);
+        if istep == nsteps
+            fname=pfx*"geo.nx$(nx1).ny$(ny1).dat"
+            write(fname,[reshape(Xn,:); reshape(Yn,:)]);
+        end
+#       fid=fopen([cstr*".nx$(nx1-1).ny$(ny1-1).dat"],"w"); fprintf(fid,"%20.16e\n",uf); fclose(fid);
+#       write(
         println(str)
     end
 
     return diff,err
 end
 
-function mplot_ref(un,xn,yn,Jx,Jy,xm,ym,pdim)
+function mplot_ref(un,xn,yn,Jx,Jy,xm,ym,pdim,fname="figure",pfx="")
     mx,nx=size(Jx);
     my,ny=size(Jy);
 
@@ -49,12 +61,26 @@ function mplot_ref(un,xn,yn,Jx,Jy,xm,ym,pdim)
 #   heatmap(reshape(xn,:),reshape(yn,:),reshape(un,nx,ny))
 #   heatmap(xn[:,1],yn[1,:],reshape(un,nx,ny)')
 #   h=heatmap(xn[:,1],yn[1,:],reshape(un,nx,ny)')
-    h=heatmap(xm[:,1],ym[1,:],reshape(um,mx,my)',aspect_ratio=1.0,c=:jet1,legend=false,ticks=false,axis=nothing)
-#   display(h)
 
-    savefig("fig.pdf")
+#   h=heatmap(xm[:,1],ym[1,:],reshape(um,mx,my)',aspect_ratio=1.0,c=:jet1,legend=false,axis=([], false))
 
 
+#   savefig(pfx*fname*".png")
+
+    umax = maximum(um)
+    umin = minimum(um)
+    
+    if umax == umin
+        um = um .- umin
+    else
+        um = (um .- umin) .* ( 1 / (umax - umin))
+    end
+
+    cmap = ColorSchemes.turbo
+    plotu = reshape(um,mx,my)'
+    
+    ucolor = map(x->get(cmap,x), plotu[end:-1:1,:])
+    save(pfx*fname*".png",ucolor)
 
     if pdim == 2
 #       clevels=[linspace(min(un)*1.001,-1.e-4,10) -1.e-5 -1.e-6 -1.e-7 -1.e-8 1.e-12 3.e-12 1.e-11 3.e-11 1.e-10 3.e-10 1.e-9 3.e-8 1.e-8 3.e-8 1.e-7 3.e-7 1.e-6 3.e-6 1.e-5 3.e-5 1.e-4 3.e-4 1.e-3 3.e-3 1.e-2];

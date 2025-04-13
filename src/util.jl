@@ -20,7 +20,7 @@ function zwgll(p);
             M[i,i+1]=(1/2)*sqrt((i*(i+2))/((i+1/2)*(i+3/2)));
             M[i+1,i]=M[i,i+1];
         end
-      
+
         D=eigvals(M);
         z[2:p]=sort(D);
     end
@@ -158,19 +158,19 @@ end
 function setplots(Xn,Yn,Xn2,Yn2,Xm,Ym,Xpn,Ypn,Jxnl,Jynl,Jxn2l,Jyn2l,Jxml,Jyml,Jpxl,Jpyl,Xl,Yl,pdim,vort,sf,Db)
     n2=Int(round(length(Xn)));
 
-    plot_m1=(u)->mplot_ref(u,Xn,Yn,Jxnl,Jynl,Xl,Yl,pdim);
-    plot_mm=(u)->mplot_ref(u,Xm,Ym,Jxml,Jyml,Xl,Yl,pdim);
-    plot_m2=(u)->mplot_ref(u,Xpn,Ypn,Jpxl,Jpyl,Xl,Yl,pdim);
-    plot_m3=(u)->mplot_ref(u,Xn2,Yn2,Jxn2l,Jyn2l,Xl,Yl,pdim);
+    plot_m1=(u,fname="figure")->mplot_ref(u,Xn,Yn,Jxnl,Jynl,Xl,Yl,pdim,fname);
+    plot_mm=(u,fname="figure")->mplot_ref(u,Xm,Ym,Jxml,Jyml,Xl,Yl,pdim,fname);
+    plot_m2=(u,fname="figure")->mplot_ref(u,Xpn,Ypn,Jpxl,Jpyl,Xl,Yl,pdim,fname);
+    plot_m3=(u,fname="figure")->mplot_ref(u,Xn2,Yn2,Jxn2l,Jyn2l,Xl,Yl,pdim,fname);
 
-    p1=(uv)->plot_m1(uv[1:n2]);
-    p2=(uv)->plot_m1(uv[n2+1:end]);
-    pm=(uv)->plot_m1(sqrt.(uv[1:n2].^2+uv[n2+1:end].^2));
-    pv=(uv)->plot_m1(vort(uv));
-    psf=(uv,ubsf)->plot_m1(sf(uv,ubsf));
+    p1=(uv,fname="figure")->plot_m1(uv[1:n2],fname);
+    p2=(uv,fname="figure")->plot_m1(uv[n2+1:end],fname);
+    pm=(uv,fname="figure")->plot_m1(sqrt.(uv[1:n2].^2+uv[n2+1:end].^2),fname);
+    pv=(uv,fname="figure")->plot_m1(vort(uv),fname);
+    psf=(uv,ubsf,fname="figure")->plot_m1(sf(uv,ubsf),fname);
 
-    pp=(p)   ->plot_m2(p);
-    pdiv=(uv)->plot_m2(Db(uv));
+    pp=(p,fname="figure")   ->plot_m2(p,fname);
+    pdiv=(uv,fname="figure")->plot_m2(Db(uv),fname);
 
     return p1,p2,pm,pv,psf,pp,pdiv,plot_m1,plot_m2,plot_mm,plot_m3
 end
@@ -199,9 +199,12 @@ function lag!(res,a);
 end
 
 function incomp(usf,ps,bdti1,Binv,Einv,Db,DT,RT)
-    dp=-ortho(Einv(Db(usf))*bdti1);
+    dbusf = ortho(Db(usf))
+    dp=-ortho(Einv(dbusf))*bdti1;
+#   dp=-ortho(Einv(Db(usf)))*bdti1;
     p=ps+dp;
     uf=usf+RT(Binv(DT(dp))*(1.0/bdti1));
+#   uf=usf;
 
     return uf,p
 end
@@ -272,4 +275,3 @@ function interp_uv(uv,Nx,Ny,Mx,My)
 
     return Juv
 end
-

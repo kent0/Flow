@@ -84,6 +84,10 @@ function h2d(ub,Abx,Aby,Bbx,Bby,nu,bdti)
     return a2u(Bby,Hx,ub)+a2u(Hy,Bbx,ub)
 end
 
+function a2d(ub,Abx,Aby,Bbx,Bby)
+    return a2u(Bby,Abx,ub)+a2u(Aby,Bbx,ub)
+end
+
 function dt2d(p,Bbx,Bby,Dbx,Dby,Ibx,Iby,Jpx,Jpy,Rx,Ry,ifr)
     t=a2u(Bby,Bbx,a2u(Jpy,Jpx,p));
 #   t=a2u(Jpy,Jpx,p);
@@ -98,11 +102,12 @@ let Sx,Sy,Dinv
         if ifupd
             Hx=nu*Ax+bdti*Bx*.5; Hx=.5*(Hx+Hx');
             Hy=nu*Ay+bdti*By*.5; Hy=.5*(Hy+Hy');
-    #       Sx,lamx=eigen(Hx,full(Bx));
-    #       Sy,lamy=eigen(Hy,full(By));
             lamx,Sx=eigen(Hx,Matrix(Bx));
             lamy,Sy=eigen(Hy,Matrix(By));
-    #       Dinv=diag(inv(kron(Iy,sparse(lamx))+kron(sparse(lamy),Ix)));
+            # normalize eigenvectors
+#           Sx = Sx ./ norm.(eachcol(Sx))' 
+#           Sy = Sy ./ norm.(eachcol(Sy))'
+#           println(Sx)
             Dinv=Vector(diag(kinv(kron(Iy,spdiagm(lamx))+kron(spdiagm(lamy),Ix))));
         end
         mx,nx=size(Ax); my,ny=size(Ay);
@@ -159,9 +164,6 @@ let Sx=[],Sy=[],Dinv=[]
 
             Dinv=1.0./diag(kron(spdiagm(lamy),Ix)+kron(Iy,spdiagm(lamx)));
         end
-
-    #   tmp1=a2u(Sy',Sx',u);
-    #   tmp2=Dinv.*tmp1;
 
         return a2u(Sy,Sx,Dinv.*a2u(Sy',Sx',u));
     end

@@ -31,6 +31,11 @@ elseif cname=="ldc_reg"
     dom=[0,1,0,1]
     f=(x,y)->[x;y]*0
     ifexact=false
+elseif cname=="ldc_reg_ref"
+    ufun=(x,y,t)->[heaviside(y.-(1-1e-3)).*((1.0.+x).*(1.0.-x)).^2;y*0]
+    dom=[-1,1,-1,1]
+    f=(x,y)->[x;y]*0
+    ifexact=false
 elseif cname=="swirl"
     ufun=(x,y,t)->[2*y.*(1-x.^2);-2*x.*(1-y.^2)]
     dom=[-1,1,-1,1]
