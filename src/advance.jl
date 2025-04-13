@@ -17,7 +17,6 @@ let ulag,clag,plag,tlag
         lag!(tlag,[t]);
 
         ts=[t+dt;tlag[1:min(3,istep)]]
-    #   ts=[t+dt;tlag[1:min(3,4)]]
         bdti,alphas1,alphas2=bdfext_var(ts,3);
         bdti1=bdti[1];
 
@@ -26,7 +25,7 @@ let ulag,clag,plag,tlag
         b=b-Hb(ub,bdti1);
         ps=plag*alphas2;
         b=R(b+DbT(ps));
-
+        
         usf=RT(Hinv(b,bdti1,istep<4))+ub;
 
         return usf,ps,bdti1
