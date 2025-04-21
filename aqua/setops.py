@@ -2,7 +2,8 @@ import torch as pt
 from torch import Tensor
 import math
 from torch.nn import Parameter, Buffer
-from util import cf64
+
+from .util import cf64
 
 args = {
     'device': pt.device('cpu'), 

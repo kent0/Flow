@@ -1,12 +1,13 @@
 import torch as pt
 from torch import Tensor, _VF
 from torch.nn import Buffer
-from setops import setops, J
 import scipy as sp
 import numpy as np
-from util import cf64
 import torch.backends.opt_einsum as opt_einsum
 from typing import Any
+
+from .setops import setops, J
+from .util import cf64
 
 from torch.overrides import (
     handle_torch_function,

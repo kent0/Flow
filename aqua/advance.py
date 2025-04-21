@@ -1,12 +1,13 @@
 from torch import Tensor
 from torch import nn 
 from torch.nn import Buffer
-from setops import J, D
 from typing import Optional
 import torch as pt
 import numpy as np
-from util import Solution, mag
 from torch import _VF
+
+from .util import Solution, mag
+from .setops import J, D
 
 #def TimeStepper():
 class BDFEXT(nn.Module):

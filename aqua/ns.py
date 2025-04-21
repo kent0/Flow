@@ -1,13 +1,14 @@
-from op2d import Op
-from problem import problem
-from advance import BDFEXT, Solution
 import matplotlib.pyplot as plt
 import torch as pt
-from vis import vis
 import numpy as np
 import h5py
-from concurrent.futures import ThreadPoolExecutor
 
+from .vis import vis
+from .op2d import Op
+from .problem import problem
+from .advance import BDFEXT, Solution
+
+from concurrent.futures import ThreadPoolExecutor
 executor = ThreadPoolExecutor(max_workers=1)
 
 def ns(Nx,Ny,tf,dt,cname,nu,u0=None,pfx="",ifconv=True,iotime=0,iptime=1,dtype=pt.float64,device=pt.device('cpu')):

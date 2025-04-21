@@ -2,8 +2,9 @@ from matplotlib import pyplot as plt
 from matplotlib.image import imsave
 from matplotlib.cm import get_cmap
 import torch as pt
-from op2d import Op
-from util import mag
+
+from .op2d import Op
+from .util import mag
 
 def vis(sol,op: Op,T=None,folder='cache/',i=None):
     
