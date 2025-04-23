@@ -145,7 +145,7 @@ def J(xo: Tensor, xi: Tensor):
     no = len(xo)
     ni = len(xi)
 
-    a = pt.ones(ni)
+    a = pt.ones(ni,**args)
     
     for i in range(ni):
         for j in range(i):

@@ -168,7 +168,7 @@ class OpInv(pt.nn.Module):
         
         xdim = Ax.shape[0]
         ydim = Ay.shape[0]
-        
+
         Ax = cf64(Ax)
         Bx = cf64(Bx)
         Ay = cf64(Ay)
