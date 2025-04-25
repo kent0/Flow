@@ -93,7 +93,7 @@ def xop_fast(*args: Tensor) -> Tensor:
         x = args[-1]
         
         y_shape = list(x.shape)
-        y_shape[-1] = args[0].shape[0]
+        y_shape[-1] = args[0].shape[1]
         y_shape[-2] = args[1].shape[0]
         
         return xop3_vmap(
@@ -106,7 +106,7 @@ def xop_fast(*args: Tensor) -> Tensor:
         x = args[-1]
         
         y_shape = list(x.shape)
-        y_shape[-1] = args[0].shape[0]
+        y_shape[-1] = args[0].shape[1]
         y_shape[-2] = args[1].shape[0]
         
         return xop5_vmap(
