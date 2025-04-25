@@ -9,13 +9,6 @@ from typing import Any
 from .setops import setops, J
 from .util import cf64
 
-from torch.overrides import (
-    handle_torch_function,
-    has_torch_function,
-    has_torch_function_unary,
-    has_torch_function_variadic,
-)
-
 def ortho(p):
     return p-pt.mean(p)
     
@@ -86,6 +79,47 @@ def einsum(*args: Any) -> Tensor:
             path_dict[key] = path
     return _VF.einsum(equation, operands, path=path)  # type: ignore[attr-defined]
 
+def xop3(a1,a2,x):
+    return a2 @ x @ a1
+    
+def xop5(a1,a2,b1,b2,x):
+    return a2 @ x @ a1 + b2 @ x @ b1
+
+xop3_vmap = pt.vmap(xop3,in_dims=(None,None,0))
+xop5_vmap = pt.vmap(xop5,in_dims=(None,None,None,None,0))
+
+def xop_fast(*args: Tensor) -> Tensor:
+    if len(args) == 3:
+        x = args[-1]
+        
+        y_shape = list(x.shape)
+        y_shape[-1] = args[0].shape[0]
+        y_shape[-2] = args[1].shape[0]
+        
+        return xop3_vmap(
+            args[0],
+            args[1],
+            x.reshape((-1,x.shape[-2],x.shape[-1]))
+        ).reshape(y_shape)
+            
+    elif len(args) == 5:
+        x = args[-1]
+        
+        y_shape = list(x.shape)
+        y_shape[-1] = args[0].shape[0]
+        y_shape[-2] = args[1].shape[0]
+        
+        return xop5_vmap(
+            args[0],
+            args[1],
+            args[2],
+            args[3],
+            x.reshape((-1,x.shape[-2],x.shape[-1]))
+        ).reshape(y_shape)
+            
+    else:
+        raise Exception(f'Error: expected 3 or 5 arguments to xop_fast, received {len(args)}')
+        
 def xop(
     M1: Tensor,
     M2: Tensor,
@@ -294,10 +328,12 @@ class Op(pt.nn.Module):
         self.D_RT_Ainv_R_DT = D_RT_Ainv_R_DT_fn
         
     def Mb(self, x: Tensor):
-        return xop(self.Mbxn,self.Mbyn,x)
+        return xop_fast(self.Mbxn,self.Mbyn,x)
+#       return xop(self.Mbxn,self.Mbyn,x)
         
     def Ab(self, x: Tensor):
-        return xop(self.Abx,self.Mbyn,x) + xop(self.Mbxn,self.Aby,x)
+        return xop_fast(self.Abx,self.Mbyn,self.Mbxn,self.Aby,x)
+#       return xop(self.Abx,self.Mbyn,x) + xop(self.Mbxn,self.Aby,x)
         
     def Cb(self,cn,un):
         shape = un.shape
@@ -357,7 +393,8 @@ class Op(pt.nn.Module):
         
     def Hb(self, x: Tensor, alpha=None):
         self.set_Hb(alpha)
-        return xop(self.Hbx,self.Mbyn,x) + xop(self.Mbxn,self.Hby,x)
+#       return xop(self.Hbx,self.Mbyn,x) + xop(self.Mbxn,self.Hby,x)
+        return xop_fast(self.Hbx,self.Mbyn,self.Mbxn,self.Hby,x)
 
     def Db(self, x: Tensor):
         return xop(self.D1x,self.D1y,x[0]) + xop(self.D2x,self.D2y,x[1])
