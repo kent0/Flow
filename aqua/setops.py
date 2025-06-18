@@ -95,6 +95,19 @@ def setops(Nu,dom,bc:str,fullmass=False):
         ]
     ]
 
+def zwgc(n):
+    """
+    Computes the p+1 Gauss-Chebyshev nodes z on [-1,1]
+    and the p+1 weights w on the cpu with float64's, gradient-free.
+    """
+
+    device = pt.device('cpu')
+    dtype  = pt.float64
+
+    k = pt.linspace(0, n-1, n, device=device, dtype=dtype)
+
+    return -pt.cos((k+0.5) * (pt.pi / n))
+
 def zwgll(n):
     """
     Computes the p+1 Gauss-Lobatto-Legendre nodes z on [-1,1]
